@@ -37,9 +37,9 @@ extern int n_cmds;
 
 /* static function prototypes */
 static int     generate_process( int fd_in, int fd_out, char* prog[] );
+static void    execute_and_pipe( int n_pipes, int pipe_loc[], int fd_in, int fd_out );
 
 /* standard program execution */
 void    execute( int infile_pos, int outfile_pos, int n_pipes, int pipe_loc[] );
-void    execute_and_pipe( int n_pipes, int pipe_loc[], int fd_in, int fd_out );
 
 #endif

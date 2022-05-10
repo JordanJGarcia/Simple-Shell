@@ -78,7 +78,7 @@ void execute( int infile_pos, int outfile_pos, int n_pipes, int pipe_loc[] )
 /*          and creates pipelines through the programs.              */
 /*                                                                   */
 /*********************************************************************/
-void execute_and_pipe( int n_pipes, int pipe_loc[], int fd_in, int fd_out )
+static void execute_and_pipe( int n_pipes, int pipe_loc[], int fd_in, int fd_out )
 {
     char** current_cmd = cmds;
     int i, j, pipe_fd[n_pipes][2];
@@ -154,7 +154,7 @@ void execute_and_pipe( int n_pipes, int pipe_loc[], int fd_in, int fd_out )
 /*          creates a process and executes a program.                */
 /*                                                                   */
 /*********************************************************************/
-int generate_process( int fd_in, int fd_out, char* prog[] )
+static int generate_process( int fd_in, int fd_out, char* prog[] )
 {
     pid_t pid, pgid = getpgrp();
     int status, w;
