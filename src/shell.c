@@ -86,7 +86,6 @@ int     handle_program_execution( void );
 int     is_directory( const char* dirname );
 int     is_reg_file( const char* filename );
 int     is_redirect( const char type );
-int     is_pipe( void );
 void    print_commands( void );
 int     count_pipes( void );
 
@@ -380,7 +379,7 @@ int handle_directory_change( void )
 int handle_program_execution( void )
 {
     // set up input/output redirects and pipes
-    int i, j = 0, outfile = is_redirect( 'o' ), infile = is_redirect( 'i' ), n_pipes = count_pipes();
+    int i, j = 0, n_pipes = count_pipes(), outfile = is_redirect( 'o' ), infile = is_redirect( 'i' );
     int pipe_index[n_pipes];
 
     // store the locations of each pipe
@@ -393,7 +392,7 @@ int handle_program_execution( void )
 
     // execute command
     execute( infile, outfile, n_pipes, pipe_index );
-
+   
     return SUCCESS;
 } /* end handle_program_execution() */
 
@@ -687,7 +686,6 @@ int change_dir( void )
         {
             sprintf( abs_path, "%s/%s", getenv( PWD ), cmds[1] );
             free( cmds[1] );
-            cmds[1] = NULL;
             add_string( abs_path, cmds, 1 );
         }
 
@@ -757,7 +755,6 @@ int translate_dir_path( int loc )
 
     // reset user provided cmd
     free( cmds[1] );
-    cmds[1] = NULL;
     add_string( new_path, cmds, 1 );
 
     return SUCCESS;
@@ -773,12 +770,14 @@ int translate_dir_path( int loc )
 /*********************************************************************/
 /*                                                                   */
 /*      Function name: is_redirect                                   */
-/*      Return type:   int                                           */
-/*      Parameter(s):  None                                          */
+/*      Return type:   char* - name of file being redirected to      */
+/*      Parameter(s):                                                */
+/*          const char type: type of redirection ('i' for input,     */
+/*                           'o' for output)                         */
 /*                                                                   */
 /*      Description:                                                 */
-/*          returns the position of the io file if found in cmds     */
-/*          and -1 otherwise (io file is always after the '<'/'>'    */
+/*          returns the name of the file we are redirecting input    */
+/*          or output to.                                            */
 /*                                                                   */
 /*********************************************************************/
 int is_redirect( const char type )
@@ -793,7 +792,7 @@ int is_redirect( const char type )
     char* io = ( type == 'i' ? "<" : ">" );
     int i = 0;
 
-    for ( ; i < n_cmds; i++ )
+    for ( ; i < n_cmds - 1; i++ )
     {
         if ( strcmp( cmds[i], io ) == 0 )
             return i + 1;

@@ -392,10 +392,7 @@ int handle_program_execution( void )
     }
 
     // execute command
-    if( n_pipes == 0 )
-        execute( infile, outfile );
-    else
-        execute_and_pipe( n_pipes, pipe_index );
+    execute( infile, outfile, n_pipes, pipe_index );
 
     return SUCCESS;
 } /* end handle_program_execution() */

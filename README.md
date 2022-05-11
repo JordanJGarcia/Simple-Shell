@@ -62,4 +62,4 @@ Inabilites:
         - Does not read in aliases from $HOME/.j_profile
         - Does not allow for JShell scripts (files with commands in them) 
           and doesn't have its own inherant programming language ability 
-    
+        - Does not allow for subshells (arguments between backticks ``)    

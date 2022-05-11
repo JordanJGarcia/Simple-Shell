@@ -10,7 +10,7 @@
 /*          executes a program entered in the command line by user.  */
 /*                                                                   */
 /*********************************************************************/
-void execute( int infile_pos, int outfile_pos )
+void execute( int infile_pos, int outfile_pos, int n_pipes, int pipe_loc[] )
 {
     int pid, fd_in, fd_out, pos_to_null = -1; 
 
@@ -41,21 +41,24 @@ void execute( int infile_pos, int outfile_pos )
     }
 
     // set NULL terminator for execvp()
-    if( infile_pos != -1 && outfile_pos != -1 )
-        pos_to_null = ( infile_pos < outfile_pos ? infile_pos - 1 : outfile_pos - 1 );
-    else if( infile_pos != -1 )
-        pos_to_null = infile_pos - 1;
-    else if( outfile_pos != -1 )
-        pos_to_null = outfile_pos - 1;
-
-    if( pos_to_null != -1 )
+    // we can NULL each cmd in cmds[] that is a redirection operator ('<','>')
+    if( infile_pos != -1 )
     {
-        free( cmds[pos_to_null] );
-        cmds[pos_to_null] = NULL;
+        free( cmds[infile_pos - 1] );
+        cmds[infile_pos - 1] = NULL;
+    }
+
+    if( outfile_pos != -1 )
+    {
+        free( cmds[outfile_pos - 1] );
+        cmds[outfile_pos - 1] = NULL;
     }
     
-    // spawn process and execute prog 
-    pid = generate_process( fd_in, fd_out, cmds );
+    // handle pipelines if needed, or spawn process and execute prog 
+    if( n_pipes > 0 )
+        execute_and_pipe( n_pipes, pipe_loc, fd_in, fd_out );
+    else
+        pid = generate_process( fd_in, fd_out, cmds );
 
     return;
 
@@ -75,7 +78,7 @@ void execute( int infile_pos, int outfile_pos )
 /*          and creates pipelines through the programs.              */
 /*                                                                   */
 /*********************************************************************/
-void execute_and_pipe( int n_pipes, int pipe_idx[] )
+static void execute_and_pipe( int n_pipes, int pipe_loc[], int fd_in, int fd_out )
 {
     char** current_cmd = cmds;
     int i, j, pipe_fd[n_pipes][2];
@@ -92,14 +95,14 @@ void execute_and_pipe( int n_pipes, int pipe_idx[] )
     for ( i = 0; i < n_pipes; i++ )
     {
         // set index of pipe to null so execvp knows where to stop 
-        free( cmds[pipe_idx[i]] );
-        cmds[pipe_idx[i]] = NULL;
+        free( cmds[pipe_loc[i]] );
+        cmds[pipe_loc[i]] = NULL;
 
         // first cmd running  
         if ( i == 0 )
         {
             // execute command, this process redirects output to write end of current pipe
-            pid = generate_process( STDIN_FILENO, pipe_fd[i][WRITE_END], current_cmd );
+            pid = generate_process( fd_in, pipe_fd[i][WRITE_END], current_cmd );
         }
         else
         {
@@ -123,11 +126,11 @@ void execute_and_pipe( int n_pipes, int pipe_idx[] )
         }
 
         // adjust current_cmd to point to next set of cmds 
-        current_cmd = &cmds[pipe_idx[i] + 1];
+        current_cmd = &cmds[pipe_loc[i] + 1];
     }
 
     // run final command, this will write to stdout and read from read end of previous pipe
-    pid = generate_process( pipe_fd[i-1][READ_END], STDOUT_FILENO, current_cmd );
+    pid = generate_process( pipe_fd[i-1][READ_END], fd_out, current_cmd );
 
     // close all pipes we created
     for ( i = 0 ; i < n_pipes; i++ )
@@ -151,7 +154,7 @@ void execute_and_pipe( int n_pipes, int pipe_idx[] )
 /*          creates a process and executes a program.                */
 /*                                                                   */
 /*********************************************************************/
-int generate_process( int fd_in, int fd_out, char* prog[] )
+static int generate_process( int fd_in, int fd_out, char* prog[] )
 {
     pid_t pid, pgid = getpgrp();
     int status, w;

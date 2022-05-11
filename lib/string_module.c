@@ -114,7 +114,10 @@ int add_string( char* str, char* arr[], int index )
 {
     // check that str has data
     if ( str == NULL )
+    {
+        arr[index] = NULL;
         return SUCCESS;
+    }
 
     // do bounds checking
     if( index >= MAX_CMDS )
@@ -261,7 +264,7 @@ int shift_strings_down( char* arr[], int* arr_cnt, int index, int amount )
 /*          parser should be able to detect                          */
 /*                                                                   */
 /*********************************************************************/
-int is_special_char( const char c )
+static int is_special_char( const char c )
 {
     return ( c == '$' || c == '|' || c == '<' || 
              c == '>' || c == '&' || c == '?' ||
@@ -290,7 +293,7 @@ int is_special_char( const char c )
 /*          It is done this way to modularize the code               */
 /*                                                                   */
 /*********************************************************************/
-void save_word( char* cmd, char* cmds[], int* pos, int* cmd_len )
+static void save_word( char* cmd, char* cmds[], int* pos, int* cmd_len )
 {
     // save word
     if( *cmd_len > 0 )

@@ -27,7 +27,9 @@ int 	parse_string( char* line, char* cmds[], int* count );
 int     add_string( char* str, char* arr[], int index );
 int     merge_string_arrays( char* dest[], int dest_cnt, char* src[], int src_cnt, int index );
 int     shift_strings_down( char* arr[], int* arr_cnt, int index, int amount );
-int     is_special_char( const char c );
-void    save_word( char* cmd, char* cmds[], int* pos, int* cmd_len );   
+
+/* static function prototypes */
+static int     is_special_char( const char c );
+static void    save_word( char* cmd, char* cmds[], int* pos, int* cmd_len );   
 
 #endif

@@ -10,48 +10,46 @@
 /*          executes a program entered in the command line by user.  */
 /*                                                                   */
 /*********************************************************************/
-void execute( int infile_pos, int outfile_pos, int n_pipes, int pipe_loc[] )
+void execute( const int infile, const int outfile, int n_pipes, int pipe_loc[] )
 {
-    int pid, fd_in, fd_out, pos_to_null = -1; 
+    int pid, fd_in, fd_out;
 
     // attempt to open input file
-    if( infile_pos != -1 )
-        fd_in = open( cmds[infile_pos], O_RDONLY );
+    if( infile != -1 )
+    {
+        fd_in = open( cmds[infile], O_RDONLY );
+
+        // set redirect marker to NULL for execvp()
+        free( cmds[infile - 1] );
+        cmds[infile - 1] = NULL;
+    }
     else
         fd_in = STDIN_FILENO;
 
     // error handling for input file
     if( fd_in == -1 )
     {
-        fprintf( stderr, "Error: cannot open input file %s\n", cmds[infile_pos] );
+        fprintf( stderr, "Error: cannot open input file %s\n", cmds[infile] ); 
         return;
     }
-    
+
     // attempt to open output file
-    if( outfile_pos != -1 )
-        fd_out = open( cmds[outfile_pos], O_RDWR | O_CREAT, 0666 );
+    if( outfile != -1 )
+    {
+        fd_out = open( cmds[outfile], O_RDWR | O_CREAT, 0666 );
+
+        // set redirect marker to NULL for execvp()
+        free( cmds[outfile - 1] );
+        cmds[outfile - 1] = NULL; 
+    }
     else
         fd_out = STDOUT_FILENO;
 
     // error handling for output file
     if( fd_out == -1 )
     {
-        fprintf(stderr, "Error: can't open output file %s\n", cmds[outfile_pos] );
+        fprintf( stderr, "Error: can't open output file %s\n", cmds[outfile] );
         return;
-    }
-
-    // set NULL terminator for execvp()
-    // we can NULL each cmd in cmds[] that is a redirection operator ('<','>')
-    if( infile_pos != -1 )
-    {
-        free( cmds[infile_pos - 1] );
-        cmds[infile_pos - 1] = NULL;
-    }
-
-    if( outfile_pos != -1 )
-    {
-        free( cmds[outfile_pos - 1] );
-        cmds[outfile_pos - 1] = NULL;
     }
     
     // handle pipelines if needed, or spawn process and execute prog 
