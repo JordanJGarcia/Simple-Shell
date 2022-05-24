@@ -38,8 +38,4 @@ extern int n_cmds;
 /* standard program execution */
 void    execute( const int infile, const int outfile, int n_pipes, int pipe_loc[] );
 
-/* static function prototypes */
-static int     generate_process( int fd_in, int fd_out, char* prog[] );
-static void    execute_and_pipe( int n_pipes, int pipe_loc[], int fd_in, int fd_out );
-
 #endif

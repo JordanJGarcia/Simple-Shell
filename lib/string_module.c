@@ -1,5 +1,8 @@
 #include "string_module.h"
 
+/* static function prototypes */
+static int     is_special_char( const char c );
+static void    save_word( char* cmd, char* cmds[], int* pos, int* cmd_len );
 
 /*********************************************************************/
 /*                                                                   */

@@ -1,5 +1,10 @@
 #include "execution_module.h"
 
+/* static function prototypes */
+static int     generate_process( int fd_in, int fd_out, char* prog[] );
+static void    execute_and_pipe( int n_pipes, int pipe_loc[], int fd_in, int fd_out );
+
+
 /*********************************************************************/
 /*                                                                   */
 /*      Function name: execute                                       */
@@ -12,7 +17,7 @@
 /*********************************************************************/
 void execute( const int infile, const int outfile, int n_pipes, int pipe_loc[] )
 {
-    int pid, fd_in, fd_out;
+    int fd_in, fd_out;
 
     // attempt to open input file
     if( infile != -1 )
@@ -56,7 +61,7 @@ void execute( const int infile, const int outfile, int n_pipes, int pipe_loc[] )
     if( n_pipes > 0 )
         execute_and_pipe( n_pipes, pipe_loc, fd_in, fd_out );
     else
-        pid = generate_process( fd_in, fd_out, cmds );
+        generate_process( fd_in, fd_out, cmds );
 
     return;
 
@@ -80,7 +85,6 @@ static void execute_and_pipe( int n_pipes, int pipe_loc[], int fd_in, int fd_out
 {
     char** current_cmd = cmds;
     int i, j, pipe_fd[n_pipes][2];
-    pid_t pid; 
 
     // create first pipeline
     if ( pipe( pipe_fd[0] ) == -1 )
@@ -100,7 +104,7 @@ static void execute_and_pipe( int n_pipes, int pipe_loc[], int fd_in, int fd_out
         if ( i == 0 )
         {
             // execute command, this process redirects output to write end of current pipe
-            pid = generate_process( fd_in, pipe_fd[i][WRITE_END], current_cmd );
+            generate_process( fd_in, pipe_fd[i][WRITE_END], current_cmd );
         }
         else
         {
@@ -120,7 +124,7 @@ static void execute_and_pipe( int n_pipes, int pipe_loc[], int fd_in, int fd_out
 
             // execute command, this time the process redirects input from read end of previous pipe
             // and redirects output to write end of current pipe
-            pid = generate_process( pipe_fd[i-1][READ_END], pipe_fd[i][WRITE_END], current_cmd );
+            generate_process( pipe_fd[i-1][READ_END], pipe_fd[i][WRITE_END], current_cmd );
         }
 
         // adjust current_cmd to point to next set of cmds 
@@ -128,7 +132,7 @@ static void execute_and_pipe( int n_pipes, int pipe_loc[], int fd_in, int fd_out
     }
 
     // run final command, this will write to stdout and read from read end of previous pipe
-    pid = generate_process( pipe_fd[i-1][READ_END], fd_out, current_cmd );
+    generate_process( pipe_fd[i-1][READ_END], fd_out, current_cmd );
 
     // close all pipes we created
     for ( i = 0 ; i < n_pipes; i++ )
@@ -187,6 +191,11 @@ static int generate_process( int fd_in, int fd_out, char* prog[] )
             fprintf( stderr, "       there is not an alias specified for this command, among other possibilities\n" );
             exit(1);
         }
+    }
+    else if( pid < 0 ) // fork error
+    {
+        fprintf( stderr, "Error: could not fork() in generate_process()\n" );
+        return FAILURE;
     } // parent process 
 
     // set process group ID if it does not match process ID

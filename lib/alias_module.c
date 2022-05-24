@@ -15,8 +15,6 @@ alias   aliases[ALIAS_LIMIT];
 /*********************************************************************/
 int add_alias( char* name, char* value )
 {
-    int i;
-
     // check that we haven't reached max amount of aliases
     if ( n_aliases == ALIAS_LIMIT )
     {
@@ -77,8 +75,7 @@ int remove_alias( const char* a )
     }
 
     // remove this alias
-    alias* dummy = found; 
-    adjust_aliases( dummy );
+    adjust_aliases( found );
     
     // sort array for bsearch() & decrement n_aliases
     qsort( aliases, (size_t)(--n_aliases), sizeof(aliases[0]), alias_cmp );
@@ -122,8 +119,6 @@ alias* find_alias( const char* a )
 /*********************************************************************/
 void adjust_aliases( alias* found )
 {
-    int i;
-
     // move all values down one index in the array
     for ( ; found != &aliases[n_aliases-1]; found++ )
     {
