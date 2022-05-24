@@ -131,10 +131,15 @@ void start_shell( void )
     while ( 1 )
     {
         // set prompt to display proper information each time
-        if( getenv( HOST ) == NULL )
-            sprintf( prompt, "\033[1;36m%s\033[1;35m@\033[1;33mUnknownHost \033[1;32m[%s]> \033[0m", getenv( USER ), getenv( PWD ) );
-        else
-            sprintf( prompt, "\033[1;36m%s\033[1;35m@\033[1;33m%s \033[1;32m[%s]> \033[0m", getenv( USER ), getenv( HOST ), getenv( PWD ) );
+        sprintf( prompt, "\033[1;36m%s\033[1;35m@\033[1;33m%s \033[1;32m[%s]> \033[0m",
+            ( getenv( USER ) == NULL ? "UnknownUser" : getenv( USER ) ),
+            ( getenv( HOST ) == NULL ? "UnknownHost" : getenv( HOST ) ),
+            ( getenv( PWD ) == NULL ? "UnknownDirectory" : getenv( PWD ) ) );
+
+//        if( getenv( HOST ) == NULL )
+//            sprintf( prompt, "\033[1;36m%s\033[1;35m@\033[1;33mUnknownHost \033[1;32m[%s]> \033[0m", getenv( USER ), getenv( PWD ) );
+//        else
+//            sprintf( prompt, "\033[1;36m%s\033[1;35m@\033[1;33m%s \033[1;32m[%s]> \033[0m", getenv( USER ), getenv( HOST ), getenv( PWD ) );
 
         // prompt then read line - line is allocated with malloc(3) 
         line = readline(prompt);
