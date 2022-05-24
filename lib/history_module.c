@@ -59,7 +59,8 @@ void print_history( FILE *fp )
 int write_history_to_file( void )
 {
     char out_file[255];
-    sprintf( out_file, "%s%s", getenv( "HOME" ), "/.j_history" ); 
+    sprintf( out_file, "%s%s", 
+        ( getenv( "HOME" ) == NULL ? ".": getenv( "HOME" ) ), "/.j_history" ); 
     char* mode = "a+";
     FILE* fp; 
 
