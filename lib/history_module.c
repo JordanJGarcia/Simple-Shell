@@ -1,7 +1,8 @@
 #include "history_module.h"
 
 /* globals */
-int n_history = 0;
+int     n_history = 0;
+char*   history[HISTORY_LIMIT];
 
 /*********************************************************************/
 /*                                                                   */

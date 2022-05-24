@@ -29,7 +29,7 @@
 #endif
 
 /* globals */
-char* history[HISTORY_LIMIT];
+//char* history[HISTORY_LIMIT];
 
 /* function prototypes */
 int     add_to_history( char* );
