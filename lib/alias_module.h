@@ -28,9 +28,6 @@ typedef struct alias_t
     char    value[VALUE_LIMIT];
 } alias;
 
-/* global variable to hold aliases */
-// alias   aliases[ALIAS_LIMIT];
-
 /* prototypes */
 int     add_alias( char*, char* );
 int     remove_alias( const char* );

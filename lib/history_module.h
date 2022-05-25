@@ -28,9 +28,6 @@
     #define SUCCESS 1
 #endif
 
-/* globals */
-//char* history[HISTORY_LIMIT];
-
 /* function prototypes */
 int     add_to_history( char* );
 void    print_history( FILE* );
